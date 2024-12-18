@@ -1,0 +1,13 @@
+[binaries]
+c = 'gcc'
+cpp = 'g++'
+ar = 'ar'
+nm = 'nm'
+strip = 'strip'
+pkg-config = 'pkg-config'
+
+[host_machine]
+system = 'cynix'
+cpu_family = 'x86_64'
+cpu = 'x86_64'
+endian = 'little'

@@ -1,0 +1,4 @@
+. ${base_dir}/jinx-config
+
+KERNEL_CFLAGS='-DDEBUG -g'
+TARGET_CFLAGS="$TARGET_CFLAGS -g"

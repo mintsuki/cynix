@@ -1,0 +1,7 @@
+cpu: model=tigerlake, count=4, reset_on_triple_fault=0
+ata0-slave: type=cdrom, path=cynix.iso, status=inserted
+boot: cdrom
+port_e9_hack: enabled=1
+memory: guest=1024, host=1024
+clock: sync=realtime, rtc_sync=1, time0=utc
+magic_break: enabled=1

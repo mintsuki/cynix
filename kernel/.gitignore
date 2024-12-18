@@ -1,0 +1,12 @@
+/freestnd-c-hdrs-0bsd
+/cc-runtime*
+/src/limine.h
+/src/flanterm
+/uACPI
+/src/uacpi
+/src/lib/nanoprintf_orig.h
+/src/lib/nanoprintf.h
+/mlibc
+/mlibc-headers
+/bin
+/obj

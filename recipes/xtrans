@@ -1,0 +1,29 @@
+#! /bin/sh
+
+name=xtrans
+version=1.5.1
+revision=1
+tarball_url="https://www.x.org/archive/individual/lib/xtrans-${version}.tar.gz"
+tarball_blake2b="0024c9832952783d6799e9fbb49b29f39abdb3f213a10c03197aec7d7fa86f2c249ef211b7298bb32072bf8b5fbec4b638fda578e0f612cca42553ebc83fe574"
+source_hostdeps="automake autoconf libtool pkg-config"
+source_deps="xorg-util-macros"
+hostdeps="gcc autoconf automake libtool pkg-config"
+deps="core-libs xorg-util-macros"
+
+prepare() {
+    autotools_recursive_regen
+}
+
+configure() {
+    autotools_configure
+}
+
+build() {
+    make -j${parallelism}
+}
+
+package() {
+    DESTDIR="${dest_dir}" make install
+
+    post_package_strip
+}

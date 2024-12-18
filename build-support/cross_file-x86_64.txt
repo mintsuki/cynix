@@ -1,0 +1,14 @@
+[binaries]
+c = 'x86_64-cynix-mlibc-gcc'
+cpp = 'x86_64-cynix-mlibc-g++'
+ar = 'x86_64-cynix-mlibc-ar'
+nm = 'x86_64-cynix-mlibc-nm'
+strip = 'x86_64-cynix-mlibc-strip'
+pkg-config = 'x86_64-cynix-mlibc-pkg-config'
+llvm-config = '/base_dir/build-support/cross-llvm-config'
+
+[host_machine]
+system = 'cynix'
+cpu_family = 'x86_64'
+cpu = 'x86_64'
+endian = 'little'

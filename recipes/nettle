@@ -1,0 +1,29 @@
+#! /bin/sh
+
+name=nettle
+version=3.10
+revision=1
+tarball_url="https://ftp.gnu.org/gnu/nettle/nettle-${version}.tar.gz"
+tarball_blake2b="edf0ba6375f06e2dd4b1e3ed4bab5f592ac04a36f748ce0461bbec32622eb3d5f96f89350926c24b5bbbf37dbe14a1ad64bba5df7cb7ad5987ec634573aabbb5"
+source_hostdeps="automake autoconf libtool pkg-config"
+imagedeps="build-essential"
+hostdeps="gcc autoconf automake libtool pkg-config"
+deps="core-libs gmp"
+
+prepare() {
+    autotools_recursive_regen
+}
+
+configure() {
+    autotools_configure
+}
+
+build() {
+    make -j${parallelism}
+}
+
+package() {
+    DESTDIR="${dest_dir}" make install
+
+    post_package_strip
+}

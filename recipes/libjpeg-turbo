@@ -1,0 +1,24 @@
+#! /bin/sh
+
+name=libjpeg-turbo
+version=3.0.3
+revision=1
+tarball_url="https://github.com/libjpeg-turbo/libjpeg-turbo/archive/refs/tags/${version}.tar.gz"
+tarball_blake2b="cbf0ed5cd065ad5d30d9596ddd10ae0c400a885a3c3c46d5ce286cff003b3af2c12ba23f9c3943026e8de2e6f79dd0383b968811929127f317c2c7d91e2b49f7"
+imagedeps="build-essential cmake ninja-build git nasm"
+hostdeps="gcc pkg-config"
+deps="core-libs"
+
+configure() {
+    cmake_configure
+}
+
+build() {
+    ninja -j${parallelism}
+}
+
+package() {
+    DESTDIR="${dest_dir}" ninja install
+
+    post_package_strip
+}

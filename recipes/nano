@@ -1,0 +1,31 @@
+#! /bin/sh
+
+name=nano
+version=8.2
+revision=1
+tarball_url="https://ftp.gnu.org/gnu/nano/nano-${version}.tar.xz"
+tarball_blake2b="08e078f8f5acc8d70ad50a0a402d06a12bcf836c8161f803e2b674375abaa16d663000f02cd1fa1e0b4aad2f127a85ee3b2f60d725a761ab375ae00c905408fd"
+source_hostdeps="automake autoconf libtool pkg-config"
+hostdeps="gcc automake autoconf libtool pkg-config"
+deps="core-libs ncurses"
+
+prepare() {
+    autotools_recursive_regen
+}
+
+configure() {
+    autotools_configure
+}
+
+build() {
+    make -j${parallelism}
+}
+
+package() {
+    DESTDIR="${dest_dir}" make install
+
+    mkdir -p "${dest_dir}"/etc
+    cp -v "${base_dir}"/build-support/nano/nanorc "${dest_dir}"/etc/
+
+    post_package_strip
+}
