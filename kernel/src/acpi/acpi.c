@@ -9,6 +9,7 @@
 #include <mm/generic.k.h>
 #include <mm/vmm.k.h>
 #include <mm/slab.k.h>
+#include <sys/port.k.h>
 #include <sys/hpet.k.h>
 #include <acpi/acpi.k.h>
 #include <acpi/madt.k.h>
@@ -170,8 +171,7 @@ void uacpi_kernel_unmap(void *addr, uacpi_size len) {
 }
 
 uacpi_status uacpi_kernel_io_map(uacpi_io_addr base, uacpi_size len, uacpi_handle *out_handle) {
-    vmm_map_span(&kernel_pagemap, (void *)base + hhdm, base, len, VMM_PTE_PRESENT | VMM_PTE_NOEXEC | VMM_PTE_WRITABLE);
-    *out_handle = (void *)base + hhdm;
+    *out_handle = (void *)base;
     return UACPI_STATUS_OK;
 }
 
@@ -192,15 +192,27 @@ uacpi_status uacpi_kernel_raw_memory_write(
 }
 
 uacpi_status uacpi_kernel_raw_io_read(
-    uacpi_io_addr address, uacpi_u8 byte_width, uacpi_u64 *out_value
+    uacpi_io_addr address, uacpi_u8 byte_width, uacpi_u64 *value
 ) {
-    return UACPI_STATUS_UNIMPLEMENTED;
+    switch (byte_width) {
+        case 1: *value = inb((uintptr_t)address); break;
+        case 2: *value = inw((uintptr_t)address); break;
+        case 4: *value = ind((uintptr_t)address); break;
+        default: panic(NULL, "uACPI raw I/O read of width %u\n", byte_width);
+    }
+    return UACPI_STATUS_OK;
 }
 
 uacpi_status uacpi_kernel_raw_io_write(
-    uacpi_io_addr address, uacpi_u8 byte_width, uacpi_u64 in_value
+    uacpi_io_addr address, uacpi_u8 byte_width, uacpi_u64 value
 ) {
-    return UACPI_STATUS_UNIMPLEMENTED;
+    switch (byte_width) {
+        case 1: outb((uintptr_t)address, value); break;
+        case 2: outw((uintptr_t)address, value); break;
+        case 4: outd((uintptr_t)address, value); break;
+        default: panic(NULL, "uACPI raw I/O write of width %u\n", byte_width);
+    }
+    return UACPI_STATUS_OK;
 }
 
 uacpi_status uacpi_kernel_io_read(
@@ -208,9 +220,9 @@ uacpi_status uacpi_kernel_io_read(
     uacpi_u8 byte_width, uacpi_u64 *value
 ) {
     switch (byte_width) {
-        case 1: *value = *((volatile uint8_t  *)handle + offset); break;
-        case 2: *value = *((volatile uint16_t *)handle + offset); break;
-        case 4: *value = *((volatile uint32_t *)handle + offset); break;
+        case 1: *value = inb((uintptr_t)handle + offset); break;
+        case 2: *value = inw((uintptr_t)handle + offset); break;
+        case 4: *value = ind((uintptr_t)handle + offset); break;
         default: panic(NULL, "uACPI I/O read of width %u\n", byte_width);
     }
     return UACPI_STATUS_OK;
@@ -221,9 +233,9 @@ uacpi_status uacpi_kernel_io_write(
     uacpi_u8 byte_width, uacpi_u64 value
 ) {
     switch (byte_width) {
-        case 1: *((volatile uint8_t  *)handle + offset) = value; break;
-        case 2: *((volatile uint16_t *)handle + offset) = value; break;
-        case 4: *((volatile uint32_t *)handle + offset) = value; break;
+        case 1: outb((uintptr_t)handle + offset, value); break;
+        case 2: outw((uintptr_t)handle + offset, value); break;
+        case 4: outd((uintptr_t)handle + offset, value); break;
         default: panic(NULL, "uACPI I/O write of width %u\n", byte_width);
     }
     return UACPI_STATUS_OK;
