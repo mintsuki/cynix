@@ -118,7 +118,11 @@ static uintptr_t pmm_inner_alloc(size_t count, size_t limit) {
         pmm_last_used_index++;
 
         if (!bit_test(pmm_bitmap, pmm_last_used_index - 1)) {
-            p++;
+            if (((pmm_last_used_index - 1) - p) % count == 0) {
+                p++;
+            } else {
+                p = 0;
+            }
 
             if (p == count) {
                 size_t page_index = pmm_last_used_index - count;
