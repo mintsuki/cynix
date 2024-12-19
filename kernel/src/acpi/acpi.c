@@ -180,15 +180,33 @@ void uacpi_kernel_io_unmap(uacpi_handle handle) {
 }
 
 uacpi_status uacpi_kernel_raw_memory_read(
-    uacpi_phys_addr address, uacpi_u8 byte_width, uacpi_u64 *out_value
+    uacpi_phys_addr address, uacpi_u8 byte_width, uacpi_u64 *value
 ) {
-    return UACPI_STATUS_UNIMPLEMENTED;
+    vmm_map_span(&kernel_pagemap, (void *)address + hhdm, address, byte_width, VMM_PTE_PRESENT | VMM_PTE_NOEXEC | VMM_PTE_WRITABLE);
+
+    switch (byte_width) {
+        case 1: *value = *((volatile uint8_t  *)(address + hhdm)); break;
+        case 2: *value = *((volatile uint16_t *)(address + hhdm)); break;
+        case 4: *value = *((volatile uint32_t *)(address + hhdm)); break;
+        case 8: *value = *((volatile uint64_t *)(address + hhdm)); break;
+        default: panic(NULL, "uACPI raw memory read of width %u\n", byte_width);
+    }
+    return UACPI_STATUS_OK;
 }
 
 uacpi_status uacpi_kernel_raw_memory_write(
-    uacpi_phys_addr address, uacpi_u8 byte_width, uacpi_u64 in_value
+    uacpi_phys_addr address, uacpi_u8 byte_width, uacpi_u64 value
 ) {
-    return UACPI_STATUS_UNIMPLEMENTED;
+    vmm_map_span(&kernel_pagemap, (void *)address + hhdm, address, byte_width, VMM_PTE_PRESENT | VMM_PTE_NOEXEC | VMM_PTE_WRITABLE);
+
+    switch (byte_width) {
+        case 1: *((volatile uint8_t  *)(address + hhdm)) = value; break;
+        case 2: *((volatile uint16_t *)(address + hhdm)) = value; break;
+        case 4: *((volatile uint32_t *)(address + hhdm)) = value; break;
+        case 8: *((volatile uint64_t *)(address + hhdm)) = value; break;
+        default: panic(NULL, "uACPI raw memory write of width %u\n", byte_width);
+    }
+    return UACPI_STATUS_OK;
 }
 
 uacpi_status uacpi_kernel_raw_io_read(
