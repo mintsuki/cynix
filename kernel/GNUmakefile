@@ -29,7 +29,7 @@ LDFLAGS :=
 
 # Ensure the dependencies have been obtained.
 ifneq ($(shell ( test '$(MAKECMDGOALS)' = clean || test '$(MAKECMDGOALS)' = distclean ); echo $$?),0)
-    ifeq ($(shell ( ! test -d freestnd-c-hdrs-0bsd || ! test -d cc-runtime || ! test -f src/limine.h || ! test -d src/flanterm || ! test -f src/lib/nanoprintf.h || ! test -d mlibc-headers ); echo $$?),0)
+    ifeq ($(shell ( ! test -d freestnd-c-hdrs-0bsd || ! test -d cc-runtime || ! test -f src/limine.h || ! test -d src/flanterm || ! test -d src/uacpi || ! test -f src/lib/nanoprintf.h || ! test -d mlibc-headers ); echo $$?),0)
         $(error Please run the ./get-deps script first)
     endif
 endif
@@ -151,7 +151,7 @@ clean:
 # Remove everything built and generated including downloaded dependencies.
 .PHONY: distclean
 distclean: clean
-	rm -rf freestnd-c-hdrs-0bsd cc-runtime src/limine.h src/flanterm src/lib/nanoprintf_orig.h src/lib/nanoprintf.h mlibc mlibc-headers
+	rm -rf freestnd-c-hdrs-0bsd cc-runtime src/limine.h src/flanterm src/uacpi uACPI src/lib/nanoprintf_orig.h src/lib/nanoprintf.h mlibc mlibc-headers
 
 # Install the final built executable to its final on-root location.
 .PHONY: install
