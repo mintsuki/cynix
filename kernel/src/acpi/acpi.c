@@ -147,18 +147,30 @@ uacpi_status uacpi_kernel_get_rsdp(uacpi_phys_addr *out_rsdp_address) {
     return UACPI_STATUS_OK;
 }
 
+uacpi_status uacpi_kernel_pci_device_open(uacpi_pci_address address, uacpi_handle *out_handle) {
+    uint64_t dev = (uint64_t)address.segment << 32 | address.bus << 16 | address.device << 8 | address.function;
+    *out_handle = (void *)dev;
+    return UACPI_STATUS_OK;
+}
+
+void uacpi_kernel_pci_device_close(uacpi_handle handle) {
+    // ...
+}
+
+uacpi_status uacpi_kernel_pci_read(uacpi_handle device, uacpi_size offset, uacpi_u8 byte_width, uacpi_u64 *value) {
+    return UACPI_STATUS_UNIMPLEMENTED;
+}
+
+uacpi_status uacpi_kernel_pci_write(uacpi_handle device, uacpi_size offset, uacpi_u8 byte_width, uacpi_u64 value) {
+    return UACPI_STATUS_UNIMPLEMENTED;
+}
+
 void uacpi_kernel_free(void *mem) {
     slab_free(mem);
 }
 
 void *uacpi_kernel_alloc(uacpi_size size) {
     return slab_alloc(size);
-}
-
-void *uacpi_kernel_calloc(uacpi_size count, uacpi_size size) {
-    void *ret = slab_alloc(count * size);
-    memset(ret, 0, count * size);
-    return ret;
 }
 
 void *uacpi_kernel_map(uacpi_phys_addr addr, uacpi_size len) {
@@ -177,60 +189,6 @@ uacpi_status uacpi_kernel_io_map(uacpi_io_addr base, uacpi_size len, uacpi_handl
 
 void uacpi_kernel_io_unmap(uacpi_handle handle) {
     (void)handle;
-}
-
-uacpi_status uacpi_kernel_raw_memory_read(
-    uacpi_phys_addr address, uacpi_u8 byte_width, uacpi_u64 *value
-) {
-    vmm_map_span(&kernel_pagemap, (void *)address + hhdm, address, byte_width, VMM_PTE_PRESENT | VMM_PTE_NOEXEC | VMM_PTE_WRITABLE);
-
-    switch (byte_width) {
-        case 1: *value = *((volatile uint8_t  *)(address + hhdm)); break;
-        case 2: *value = *((volatile uint16_t *)(address + hhdm)); break;
-        case 4: *value = *((volatile uint32_t *)(address + hhdm)); break;
-        case 8: *value = *((volatile uint64_t *)(address + hhdm)); break;
-        default: panic(NULL, "uACPI raw memory read of width %u\n", byte_width);
-    }
-    return UACPI_STATUS_OK;
-}
-
-uacpi_status uacpi_kernel_raw_memory_write(
-    uacpi_phys_addr address, uacpi_u8 byte_width, uacpi_u64 value
-) {
-    vmm_map_span(&kernel_pagemap, (void *)address + hhdm, address, byte_width, VMM_PTE_PRESENT | VMM_PTE_NOEXEC | VMM_PTE_WRITABLE);
-
-    switch (byte_width) {
-        case 1: *((volatile uint8_t  *)(address + hhdm)) = value; break;
-        case 2: *((volatile uint16_t *)(address + hhdm)) = value; break;
-        case 4: *((volatile uint32_t *)(address + hhdm)) = value; break;
-        case 8: *((volatile uint64_t *)(address + hhdm)) = value; break;
-        default: panic(NULL, "uACPI raw memory write of width %u\n", byte_width);
-    }
-    return UACPI_STATUS_OK;
-}
-
-uacpi_status uacpi_kernel_raw_io_read(
-    uacpi_io_addr address, uacpi_u8 byte_width, uacpi_u64 *value
-) {
-    switch (byte_width) {
-        case 1: *value = inb((uintptr_t)address); break;
-        case 2: *value = inw((uintptr_t)address); break;
-        case 4: *value = ind((uintptr_t)address); break;
-        default: panic(NULL, "uACPI raw I/O read of width %u\n", byte_width);
-    }
-    return UACPI_STATUS_OK;
-}
-
-uacpi_status uacpi_kernel_raw_io_write(
-    uacpi_io_addr address, uacpi_u8 byte_width, uacpi_u64 value
-) {
-    switch (byte_width) {
-        case 1: outb((uintptr_t)address, value); break;
-        case 2: outw((uintptr_t)address, value); break;
-        case 4: outd((uintptr_t)address, value); break;
-        default: panic(NULL, "uACPI raw I/O write of width %u\n", byte_width);
-    }
-    return UACPI_STATUS_OK;
 }
 
 uacpi_status uacpi_kernel_io_read(
@@ -257,20 +215,6 @@ uacpi_status uacpi_kernel_io_write(
         default: panic(NULL, "uACPI I/O write of width %u\n", byte_width);
     }
     return UACPI_STATUS_OK;
-}
-
-uacpi_status uacpi_kernel_pci_read(
-    uacpi_pci_address *address, uacpi_size offset,
-    uacpi_u8 byte_width, uacpi_u64 *value
-) {
-    return UACPI_STATUS_UNIMPLEMENTED;
-}
-
-uacpi_status uacpi_kernel_pci_write(
-    uacpi_pci_address *address, uacpi_size offset,
-    uacpi_u8 byte_width, uacpi_u64 value
-) {
-    return UACPI_STATUS_UNIMPLEMENTED;
 }
 
 void uacpi_kernel_log(uacpi_log_level level, const uacpi_char *str) {
@@ -452,13 +396,6 @@ uacpi_status uacpi_kernel_schedule_work(
     return UACPI_STATUS_UNIMPLEMENTED;
 }
 
-
-
-
-
-
-
-
-
-
-
+uacpi_status uacpi_kernel_wait_for_work_completion(void) {
+    return UACPI_STATUS_UNIMPLEMENTED;
+}

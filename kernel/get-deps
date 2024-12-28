@@ -87,7 +87,7 @@ clone_repo_commit \
 clone_repo_commit \
     https://github.com/UltraOS/uACPI.git \
     uACPI \
-    1721b8a2a35fb60719641adefbdb945006cb673c
+    c0a82c02d90269625f9ba383aab9720163c1fa90
 rm -rf src/uacpi
 mkdir -p src/uacpi
 cp -rp uACPI/include/uacpi/* src/uacpi/
